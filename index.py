@@ -1,5 +1,29 @@
 from flask import Flask, render_template_string, jsonify
 import subprocess
+import servoCtrl
+
+#┌────────────────┬────────────────┐
+#│  1: 3.3V       │ 5V           2 │
+#│  3: GPIO2 SDA  │ 5V           4 │
+#│  5: GPIO3 SCL  │ GND          6 │
+#│  7: GPIO4 GP   │ GPIO14 TXD   8 │
+#│  9: GND        │ GPIO15 RXD  10 │
+#│ 11: GPIO17 GP  │ GPIO18 PWM  12 │ speed_box
+#│ 13: GPIO27 GP  │ GND         14 │
+#│ 15: GPIO22 GP  │ GPIO23 GP   16 │
+#│ 17: 3.3V       │ GPIO24 GP   18 │
+#│ 19: GPIO10 MOSI│ GND         20 │
+#│ 21: GPIO9 MISO │ GPIO25 GP   22 │
+#│ 23: GPIO11 SCLK│ GPIO8 CE0   24 │
+#│ 25: GND        │ GPIO7 CE1   26 │
+#│ 27: GPIO0 ID_SD│ GPIO1 ID_SC 28 │
+#│ 29: GPIO5 GP   │ GND         30 │
+#│ 31: GPIO6 GP   │ GPIO12 PWM  32 │ ecu_reset
+#│ 33: GPIO13 PWM │ GND         34 │
+#│ 35: GPIO19 PWM │ GPIO16 GP   36 │
+#│ 37: GPIO26 GP  │ GPIO20 GP   38 │
+#│ 39: GND        │ GPIO21 GP   40 │
+#└────────────────┴────────────────┘
 
 app = Flask(__name__)
 
@@ -10,6 +34,12 @@ with open("reset.html") as f:
 # Track states
 reset_state = "released"
 debugger_state = "off"
+
+# Initialize PWMs
+speed_box_servo_pin = 18
+ecu_reset_servo_pin = 38 #tbd
+pwm_speed_box = servoCtrl.init_servos(speed_box_servo_pin)
+pwm_ecu_reset = servoCtrl.init_servos(ecu_reset_servo_pin)
 
 # Dummy debugger function
 def debuggerCtrl(state: str):
@@ -27,10 +57,12 @@ def toggle_reset():
     global reset_state
     if reset_state == "released":
         reset_state = "pressed"
-        subprocess.Popen(["python3", "your_gpio.py", "press"])
+        servoCtrl.set_angle(pwm_ecu_reset,45)
+        #subprocess.Popen(["python3", "your_gpio.py", "press"])
     else:
         reset_state = "released"
-        subprocess.Popen(["python3", "your_gpio.py", "release"])
+        servoCtrl.set_angle(pwm_ecu_reset,0)
+        #subprocess.Popen(["python3", "your_gpio.py", "release"])
     return jsonify({"state": reset_state})
 
 
@@ -39,10 +71,10 @@ def toggle_debugger():
     global debugger_state
     if debugger_state == "off":
         debugger_state = "on"
-        debuggerCtrl("on")
+        servoCtrl.set_angle(pwm_speed_box,45)
     else:
         debugger_state = "off"
-        debuggerCtrl("off")
+        servoCtrl.set_angle(pwm_speed_box,0)
     return jsonify({"state": debugger_state})
 
 
