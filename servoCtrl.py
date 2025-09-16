@@ -36,7 +36,7 @@ import curses
 def set_angle(pwm, angle):
     duty = 2 + (angle / 18)
     pwm.ChangeDutyCycle(duty)
-    time.sleep(0.1)
+    time.sleep(0.3)
     pwm.ChangeDutyCycle(0)
 
 def init_servos(servo_pin,freq=50):
@@ -47,15 +47,3 @@ def init_servos(servo_pin,freq=50):
     pwm.start(0)
     print("pwm started")
     return pwm
-    
-
-def main(args):
-    servo_pin = 18
-    pwm=init_servos(servo_pin)
-    set_angle(pwm,45)
-    set_angle(pwm,0)
-    return 0
-
-if __name__ == '__main__':
-    import sys
-    sys.exit(main(sys.argv))
