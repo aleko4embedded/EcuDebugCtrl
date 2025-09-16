@@ -36,11 +36,11 @@ reset_state = "released"
 debugger_state = "off"
 
 # Initialize PWMs
-speed_box_servo_pin = 18
-ecu_reset_servo_pin = 12
-pwm_speed_box = servoCtrl.init_servos(speed_box_servo_pin)
+speed_box_servo_pin = 12
+ecu_reset_servo_pin = 18
+pwm_speed_box = servoCtrl.init_servos(speed_box_servo_pin,25)
 pwm_ecu_reset = servoCtrl.init_servos(ecu_reset_servo_pin)
-speed_box_servo_angle = 90
+speed_box_servo_angle = 20
 ecu_reset_servo_angle = 90
 
 # Dummy debugger function
