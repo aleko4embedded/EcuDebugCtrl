@@ -41,7 +41,7 @@ ecu_reset_servo_pin = 18
 pwm_speed_box = servoCtrl.init_servos(speed_box_servo_pin,25)
 pwm_ecu_reset = servoCtrl.init_servos(ecu_reset_servo_pin)
 speed_box_servo_angle = 20
-ecu_reset_servo_angle = 80
+ecu_reset_servo_angle = 90
 
 # Dummy debugger function
 def debuggerCtrl(state: str):
