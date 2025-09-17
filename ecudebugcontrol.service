@@ -1,0 +1,15 @@
+[Unit]
+Description=IHKA ECU Control Web Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/aetech/raspi-http/EcuDebugCtrl/index.py
+WorkingDirectory=/home/aetech/raspi-http/EcuDebugCtrl/
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=aetech
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
