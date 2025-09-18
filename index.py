@@ -1,5 +1,4 @@
-from flask import Flask, render_template_string, jsonify
-import subprocess
+from flask import Flask, render_template_string, jsonify, request
 import servoCtrl
 
 #┌────────────────┬────────────────┐
@@ -38,10 +37,14 @@ debugger_state = "off"
 # Initialize PWMs
 speed_box_servo_pin = 12
 ecu_reset_servo_pin = 18
-pwm_speed_box = servoCtrl.init_servos(speed_box_servo_pin,25)
+pwm_speed_box = servoCtrl.init_servos(speed_box_servo_pin, 25)
 pwm_ecu_reset = servoCtrl.init_servos(ecu_reset_servo_pin)
 speed_box_servo_angle = 20
-ecu_reset_servo_angle = 90
+
+# ECU reset angles (defaults)
+ecu_reset_servo_angle_start = 90
+ecu_reset_servo_angle_stop = 0
+
 
 # Dummy debugger function
 def debuggerCtrl(state: str):
@@ -56,15 +59,13 @@ def index():
 
 @app.route("/toggle_reset", methods=["POST"])
 def toggle_reset():
-    global reset_state
+    global reset_state, ecu_reset_servo_angle_start, ecu_reset_servo_angle_stop
     if reset_state == "released":
         reset_state = "pressed"
-        servoCtrl.set_angle(pwm_ecu_reset,ecu_reset_servo_angle)
-        #subprocess.Popen(["python3", "your_gpio.py", "press"])
+        servoCtrl.set_angle(pwm_ecu_reset, ecu_reset_servo_angle_start)
     else:
         reset_state = "released"
-        servoCtrl.set_angle(pwm_ecu_reset,0)
-        #subprocess.Popen(["python3", "your_gpio.py", "release"])
+        servoCtrl.set_angle(pwm_ecu_reset, ecu_reset_servo_angle_stop)
     return jsonify({"state": reset_state})
 
 
@@ -73,11 +74,24 @@ def toggle_debugger():
     global debugger_state
     if debugger_state == "off":
         debugger_state = "on"
-        servoCtrl.set_angle(pwm_speed_box,3)
+        servoCtrl.set_angle(pwm_speed_box, 3)
     else:
         debugger_state = "off"
-        servoCtrl.set_angle(pwm_speed_box,speed_box_servo_angle)
+        servoCtrl.set_angle(pwm_speed_box, speed_box_servo_angle)
     return jsonify({"state": debugger_state})
+
+
+@app.route("/set_angles", methods=["POST"])
+def set_angles():
+    global ecu_reset_servo_angle_start, ecu_reset_servo_angle_stop
+    data = request.get_json()
+    ecu_reset_servo_angle_start = int(data.get("start", ecu_reset_servo_angle_start))
+    ecu_reset_servo_angle_stop = int(data.get("stop", ecu_reset_servo_angle_stop))
+    print(f"[ECU reset] angles updated: start={ecu_reset_servo_angle_start}, stop={ecu_reset_servo_angle_stop}")
+    return jsonify({
+        "start": ecu_reset_servo_angle_start,
+        "stop": ecu_reset_servo_angle_stop
+    })
 
 
 if __name__ == "__main__":
