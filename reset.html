@@ -24,7 +24,7 @@
             border: 1px solid #ddd;
             border-radius: 10px;
             padding: 20px;
-            width: 250px;
+            width: 280px;
             box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
         }
 
@@ -35,47 +35,52 @@
             height: 40px;
         }
 
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+        .switch input { opacity: 0; width: 0; height: 0; }
 
         .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: 0.4s;
-            border-radius: 40px;
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc; transition: 0.4s; border-radius: 40px;
         }
 
         .slider:before {
-            position: absolute;
-            content: "";
-            height: 32px;
-            width: 32px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: 0.4s;
-            border-radius: 50%;
+            position: absolute; content: "";
+            height: 32px; width: 32px; left: 4px; bottom: 4px;
+            background-color: white; transition: 0.4s; border-radius: 50%;
         }
 
-        input:checked + .slider {
-            background-color: #4CAF50;
+        input:checked + .slider { background-color: #4CAF50; }
+        input:checked + .slider:before { transform: translateX(40px); }
+
+        p { margin-top: 10px; font-weight: bold; }
+
+        .field-row {
+            margin: 10px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
         }
 
-        input:checked + .slider:before {
-            transform: translateX(40px);
+        .field-row input {
+            width: 70px;
+            padding: 5px;
+            font-size: 14px;
         }
 
-        p {
-            margin-top: 10px;
+        button.confirm {
+            margin-top: 15px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: #d9534f;
+            color: white;
             font-weight: bold;
+            cursor: pointer;
+        }
+
+        button.confirm:hover {
+            background-color: #c9302c;
         }
     </style>
 </head>
@@ -83,7 +88,7 @@
     <h1>IHKA ECU Control</h1>
 
     <div class="container">
-        <!-- ECU reset toggle -->
+        <!-- ECU reset toggle + fields -->
         <div class="card">
             <h2>ECU reset</h2>
             <label class="switch">
@@ -91,57 +96,9 @@
                 <span class="slider"></span>
             </label>
             <p id="ecuStatus">Reset released</p>
-        </div>
 
-        <!-- Speed-Box toggle -->
-        <div class="card">
-            <h2>Speed-Box On-Off</h2>
-            <label class="switch">
-                <input type="checkbox" id="debugSwitch" onchange="toggleDebugger()">
-                <span class="slider"></span>
-            </label>
-            <p id="debugStatus">Debugger off</p>
-        </div>
-    </div>
-
-    <script>
-        async function toggleReset() {
-            let sw = document.getElementById("ecuSwitch");
-            let status = document.getElementById("ecuStatus");
-            try {
-                const response = await fetch("/toggle_reset", { method: "POST" });
-                const data = await response.json();
-
-                if (data.state === "pressed") {
-                    sw.checked = true;
-                    status.textContent = "Reset pressed";
-                } else {
-                    sw.checked = false;
-                    status.textContent = "Reset released";
-                }
-            } catch (err) {
-                alert("Error: " + err);
-            }
-        }
-
-        async function toggleDebugger() {
-            let sw = document.getElementById("debugSwitch");
-            let status = document.getElementById("debugStatus");
-            try {
-                const response = await fetch("/toggle_debugger", { method: "POST" });
-                const data = await response.json();
-
-                if (data.state === "on") {
-                    sw.checked = true;
-                    status.textContent = "Debugger on";
-                } else {
-                    sw.checked = false;
-                    status.textContent = "Debugger off";
-                }
-            } catch (err) {
-                alert("Error: " + err);
-            }
-        }
-    </script>
-</body>
-</html>
+            <!-- New numeric fields -->
+            <div class="field-row">
+                <input type="number" id="startAngle" value="0" step="1">
+                <span>start angle</span>
+            </d
